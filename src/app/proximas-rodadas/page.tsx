@@ -97,7 +97,7 @@ export default function ProximasRodadasPage() {
           <span className="text-4xl mb-4">📅</span>
           <p className="text-white/50 text-lg font-medium">Nenhuma rodada disponível</p>
           <p className="text-white/30 text-sm mt-1">
-            Clique em "Sincronizar" no Dashboard para carregar os dados.
+            Clique em &ldquo;Sincronizar&rdquo; no Dashboard para carregar os dados.
           </p>
         </div>
       ) : (

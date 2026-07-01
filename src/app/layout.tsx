@@ -1,8 +1,18 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import Image from 'next/image';
 import './globals.css';
 import { Providers } from './providers';
 import Link from 'next/link';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  display: 'swap',
+});
+
+
 
 export const metadata: Metadata = {
   title: 'PrimeFutebol — Campeonato Brasileiro Série A',
@@ -27,12 +37,7 @@ export default function RootLayout({
 }) {
   return (
       <html lang="pt-BR" className="dark">
-        <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        </head>
-      <body className="bg-[#0B0E14] text-white/90 antialiased">
+      <body className={`${inter.className} bg-[#0B0E14] text-white/90 antialiased`}>
         <Providers>
           <div className="bg-noise min-h-screen relative">
             {/* Background gradients */}
@@ -54,7 +59,7 @@ export default function RootLayout({
                   {/* Logo */}
                   <Link href="/" className="flex items-center gap-2.5 group">
                     <div className="flex items-center justify-center w-9 h-9">
-                      <img src="/logoPrime.png" alt="PrimeFutebol" className="w-9 h-9 object-contain" />
+                      <Image src="/logoPrime.png" alt="PrimeFutebol" width={36} height={36} className="w-9 h-9 object-contain" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-lg font-bold text-white/90 leading-tight tracking-tight">

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import type { Match, MatchStatus, Goal } from '@/lib/types';
 import { formatMatchDateTime, getLiveMinutes } from '@/lib/types';
 import { Badge } from './ui/Badge';
@@ -72,7 +73,7 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className={`rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden ${compact ? 'w-7 h-7' : 'w-8 h-8'}`}>
               {homeTeam.logoUrl ? (
-                <img src={homeTeam.logoUrl} alt={homeTeam.name} className={`object-contain ${compact ? 'w-6 h-6' : 'w-7 h-7'}`} />
+                <Image src={homeTeam.logoUrl} alt={homeTeam.name} width={28} height={28} className={`object-contain ${compact ? 'w-6 h-6' : 'w-7 h-7'}`} />
               ) : (
                 <span className="text-[10px] font-bold text-white/40">
                   {(homeTeam.shortName || homeTeam.name).slice(0, 2)}
@@ -108,7 +109,7 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
             </span>
             <div className={`rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden ${compact ? 'w-7 h-7' : 'w-8 h-8'}`}>
               {awayTeam.logoUrl ? (
-                <img src={awayTeam.logoUrl} alt={awayTeam.name} className={`object-contain ${compact ? 'w-6 h-6' : 'w-7 h-7'}`} />
+                <Image src={awayTeam.logoUrl} alt={awayTeam.name} width={28} height={28} className={`object-contain ${compact ? 'w-6 h-6' : 'w-7 h-7'}`} />
               ) : (
                 <span className="text-[10px] font-bold text-white/40">
                   {(awayTeam.shortName || awayTeam.name).slice(0, 2)}
@@ -197,7 +198,7 @@ function MatchGoalsPopover({
               <ul className="space-y-1">
                 {homeGoals.map((g, i) => (
                   <li key={i} className="text-xs text-white/80 flex items-center gap-1.5">
-                    <span className="text-emerald-400 font-mono font-medium tabular-nums">{g.minute}'</span>
+                    <span className="text-emerald-400 font-mono font-medium tabular-nums">{g.minute}&apos;</span>
                     <span className="truncate">{g.scorer}</span>
                     {g.isOwnGoal && (
                       <span className="text-amber-400 text-[10px] font-medium shrink-0">GC</span>
@@ -220,7 +221,7 @@ function MatchGoalsPopover({
               <ul className="space-y-1">
                 {awayGoals.map((g, i) => (
                   <li key={i} className="text-xs text-white/80 flex items-center gap-1.5">
-                    <span className="text-emerald-400 font-mono font-medium tabular-nums">{g.minute}'</span>
+                    <span className="text-emerald-400 font-mono font-medium tabular-nums">{g.minute}&apos;</span>
                     <span className="truncate">{g.scorer}</span>
                     {g.isOwnGoal && (
                       <span className="text-amber-400 text-[10px] font-medium shrink-0">GC</span>

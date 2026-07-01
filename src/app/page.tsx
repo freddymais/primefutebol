@@ -109,7 +109,7 @@ export default function DashboardPage() {
                 <span className="text-3xl mb-2">📅</span>
                 <p className="text-white/40 text-sm">Nenhum jogo na rodada atual.</p>
                 <p className="text-white/30 text-xs mt-1">
-                  Clique em "Sincronizar" para buscar os dados.
+                  Clique em &ldquo;Sincronizar&rdquo; para buscar os dados.
                 </p>
               </div>
             ) : (

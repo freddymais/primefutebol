@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import type { Standing } from '@/lib/types';
 import { getZoneType } from '@/lib/types';
 import { FormBadge } from './ui/Badge';
@@ -55,7 +56,7 @@ export function StandingsTable({ standings, loading, error, onRetry }: Standings
           Nenhum dado de classificação disponível.
         </p>
         <p className="text-white/30 text-xs mt-1">
-          Clique em "Sincronizar" para buscar os dados.
+          Clique em &ldquo;Sincronizar&rdquo; para buscar os dados.
         </p>
       </div>
     );
@@ -103,9 +104,11 @@ export function StandingsTable({ standings, loading, error, onRetry }: Standings
                   <div className="flex items-center gap-2.5">
                     <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {s.team.logoUrl ? (
-                        <img
+                        <Image
                           src={s.team.logoUrl}
                           alt={s.team.name}
+                          width={20}
+                          height={20}
                           className="w-5 h-5 object-contain"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
