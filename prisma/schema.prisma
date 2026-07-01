@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id         Int       @id @default(autoincrement())
+  name       String
+  shortName  String?   @map("short_name")
+  slug       String?   @unique
+  logoUrl    String?   @map("logo_url")
+  stadium    String?
+  externalId String?   @unique @map("external_id")
+
+  homeMatches Match[]  @relation("homeTeam")
+  awayMatches Match[]  @relation("awayTeam")
+  standings   Standing[]
+  goals       Goal[]
+  topScorers  TopScorer[]
+
+  @@map("teams")
+}
+
+model Season {
+  id              Int      @id @default(autoincrement())
+  year            Int
+  competitionName String   @default("Campeonato Brasileiro Série A") @map("competition_name")
+
+  rounds    Round[]
+  standings Standing[]
+  topScorers TopScorer[]
+
+  @@map("seasons")
+}
+
+model Round {
+  id        Int     @id @default(autoincrement())
+  seasonId  Int     @map("season_id")
+  number    Int
+  isCurrent Boolean @default(false) @map("is_current")
+
+  season  Season   @relation(fields: [seasonId], references: [id])
+  matches Match[]
+
+  @@unique([seasonId, number])
+  @@map("rounds")
+}
+
+model Match {
+  id            Int      @id @default(autoincrement())
+  roundId       Int      @map("round_id")
+  homeTeamId    Int      @map("home_team_id")
+  awayTeamId    Int      @map("away_team_id")
+  homeScore     Int?
+  awayScore     Int?
+  status        String   @default("scheduled") // scheduled | live | finished | postponed
+  matchDatetime String   @map("match_datetime")
+  venue         String?
+  externalId    String?  @unique @map("external_id")
+  lastSyncedAt  String?  @map("last_synced_at")
+
+  round    Round @relation(fields: [roundId], references: [id])
+  homeTeam Team  @relation("homeTeam", fields: [homeTeamId], references: [id])
+  awayTeam Team  @relation("awayTeam", fields: [awayTeamId], references: [id])
+  goals    Goal[]
+
+  @@map("matches")
+}
+
+model Standing {
+  id            Int      @id @default(autoincrement())
+  seasonId      Int      @map("season_id")
+  teamId        Int      @map("team_id")
+  position      Int
+  played        Int      @default(0)
+  wins          Int      @default(0)
+  draws         Int      @default(0)
+  losses        Int      @default(0)
+  goalsFor      Int      @default(0) @map("goals_for")
+  goalsAgainst  Int      @default(0) @map("goals_against")
+  goalDifference Int     @default(0) @map("goal_difference")
+  points        Int      @default(0)
+  last5         String?  @map("last_5")
+  updatedAt     String?  @map("updated_at")
+
+  season Season @relation(fields: [seasonId], references: [id])
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  @@unique([seasonId, teamId])
+  @@map("standings")
+}
+
+model TopScorer {
+  id               Int     @id @default(autoincrement())
+  seasonId         Int     @map("season_id")
+  teamId           Int     @map("team_id")
+  playerName       String  @map("player_name")
+  playerExternalId String? @map("player_external_id")
+  goals            Int
+  assists          Int?
+  penalties        Int?
+  played           Int
+
+  season Season @relation(fields: [seasonId], references: [id])
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  @@unique([seasonId, playerExternalId])
+  @@map("top_scorers")
+}
+
+model Goal {
+  id        Int    @id @default(autoincrement())
+  matchId   Int    @map("match_id")
+  teamId    Int    @map("team_id")
+  scorer    String
+  minute    Int
+  isOwnGoal Boolean @default(false) @map("is_own_goal")
+  isPenalty Boolean @default(false) @map("is_penalty")
+
+  match Match @relation(fields: [matchId], references: [id])
+  team  Team  @relation(fields: [teamId], references: [id])
+
+  @@map("goals")
+}
