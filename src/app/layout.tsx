@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'PrimeFutebol — Campeonato Brasileiro Série A',
-  description: 'Dashboard moderno com classificação ao vivo, jogos da rodada e calendário do Campeonato Brasileiro Série A.',
+  description: 'Classificação ao vivo, jogos da rodada e calendário do Campeonato Brasileiro Série A.',
   keywords: ['futebol', 'brasileirão', 'série a', 'classificação', 'resultados'],
   openGraph: {
     title: 'PrimeFutebol',
