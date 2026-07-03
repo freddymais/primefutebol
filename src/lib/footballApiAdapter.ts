@@ -1,4 +1,5 @@
 import prisma from './db';
+import pLimit from 'p-limit';
 
 const API_URL = process.env.FOOTBALL_API_URL || 'https://api.football-data.org/v4';
 const API_KEY = process.env.FOOTBALL_API_KEY || '';
@@ -163,9 +164,9 @@ function getSeasonYear(): number {
 }
 
 /**
- * Busca dados da Football-Data.org
+ * Busca dados da Football-Data.org com log de tempo
  */
-async function fetchFromFdApi(endpoint: string): Promise<any> {
+async function fetchFromFdApi(endpoint: string, label: string): Promise<any> {
   const headers: Record<string, string> = {
     'X-Auth-Token': API_KEY,
   };
@@ -173,7 +174,9 @@ async function fetchFromFdApi(endpoint: string): Promise<any> {
   const url = `${API_URL}${endpoint}`;
   console.log(`[FootballData.org] Fetching: ${url}`);
 
+  console.time(`[API] ${label}`);
   const res = await fetch(url, { headers, next: { revalidate: 60 } });
+  console.timeEnd(`[API] ${label}`);
 
   if (!res.ok) {
     const errorBody = await res.text().catch(() => '');
@@ -210,7 +213,6 @@ export async function syncFootballData(): Promise<{
   try {
     // 2. Limpa dados antigos desta temporada (evita duplicatas)
     console.log('[FootballData.org] Cleaning old data for season', year, '...');
-    // Deleta gols primeiro para evitar violação de foreign key
     await prisma.goal.deleteMany({
       where: {
         match: {
@@ -230,13 +232,30 @@ export async function syncFootballData(): Promise<{
       where: { seasonId: season.id },
     });
 
-    // 3. Busca classificação
-    console.log('[FootballData.org] Fetching standings...');
-    const standingsData: FdStandingsResponse = await fetchFromFdApi(
-      `/competitions/${COMPETITION_CODE}/standings`
-    );
+    // 3. Busca standings, matches e scorers em paralelo (máx 2 req simultâneas)
+    console.log('[FootballData.org] Fetching API data in parallel...');
+    const limit = pLimit(2);
 
-    const totalStanding = standingsData.standings?.find(
+    const [standingsData, matchesData, scorersData] = await Promise.all([
+      limit(() => fetchFromFdApi(
+        `/competitions/${COMPETITION_CODE}/standings`,
+        'standings'
+      )),
+      limit(() => fetchFromFdApi(
+        `/competitions/${COMPETITION_CODE}/matches`,
+        'matches'
+      )),
+      limit(() => fetchFromFdApi(
+        `/competitions/${COMPETITION_CODE}/scorers?limit=30`,
+        'scorers'
+      )),
+    ]);
+
+    console.log('[FootballData.org] All API data received. Processing...');
+
+    // 4. Processa classificação (times + standings)
+    console.log('[FootballData.org] Processing standings...');
+    const totalStanding = (standingsData as FdStandingsResponse).standings?.find(
       (s) => s.type === 'TOTAL'
     );
     const tableEntries = totalStanding?.table || [];
@@ -245,11 +264,9 @@ export async function syncFootballData(): Promise<{
       throw new Error('Nenhuma classificação encontrada para a competição.');
     }
 
-    // 4. Processa times e classificação
     for (const entry of tableEntries) {
       const apiTeam = entry.team;
 
-      // Upsert time
       const team = await prisma.team.upsert({
         where: { externalId: String(apiTeam.id) },
         update: {
@@ -268,7 +285,6 @@ export async function syncFootballData(): Promise<{
       });
       stats.teams++;
 
-      // Upsert classificação
       await prisma.standing.upsert({
         where: {
           seasonId_teamId: {
@@ -308,29 +324,22 @@ export async function syncFootballData(): Promise<{
       stats.standings++;
     }
 
-    // 5. Busca partidas da temporada
-    console.log('[FootballData.org] Fetching matches...');
-    const matchesData: FdMatchesResponse = await fetchFromFdApi(
-      `/competitions/${COMPETITION_CODE}/matches`
-    );
-
-    const matchEntries = matchesData.matches || [];
+    // 5. Processa partidas
+    console.log('[FootballData.org] Processing matches...');
+    const matchEntries = (matchesData as FdMatchesResponse).matches || [];
     const roundMap = new Map<number, number>();
 
-    // 6. Processa partidas
-    let foundLive = false; // Controla se alguma partida ao vivo foi encontrada
-    let currentRoundSet = false; // Controla se a rodada atual já foi definida
+    let foundLive = false;
+    let currentRoundSet = false;
 
     for (const fdMatch of matchEntries) {
       const roundNumber = fdMatch.matchday;
 
-      // Busca ou cria times (podem não estar na classificação se rebaixados)
       const homeTeam = await findOrCreateTeam(fdMatch.homeTeam);
       const awayTeam = await findOrCreateTeam(fdMatch.awayTeam);
 
       if (!homeTeam || !awayTeam) continue;
 
-      // Cria rodada se não existir
       let roundId = roundMap.get(roundNumber);
       if (!roundId) {
         const round = await prisma.round.upsert({
@@ -351,11 +360,9 @@ export async function syncFootballData(): Promise<{
         roundMap.set(roundNumber, roundId);
       }
 
-      // Define rodada atual baseada no status da partida
       const isInPlay = fdMatch.status === 'IN_PLAY' || fdMatch.status === 'PAUSED';
       const isUpcoming = fdMatch.status === 'SCHEDULED' || fdMatch.status === 'TIMED';
 
-      // Prioridade 1: partida ao vivo define a rodada atual
       if (isInPlay && !foundLive) {
         foundLive = true;
         currentRoundSet = true;
@@ -369,8 +376,6 @@ export async function syncFootballData(): Promise<{
         });
       }
 
-      // Prioridade 2: primeira partida SCHEDULED/TIMED define a rodada atual
-      // (só se nenhuma partida ao vivo foi encontrada ainda)
       if (isUpcoming && !currentRoundSet) {
         currentRoundSet = true;
         await prisma.round.updateMany({
@@ -383,7 +388,6 @@ export async function syncFootballData(): Promise<{
         });
       }
 
-      // Upsert partida
       const status = mapStatus(fdMatch.status);
       let homeScore: number | null = null;
       let awayScore: number | null = null;
@@ -418,11 +422,9 @@ export async function syncFootballData(): Promise<{
       });
       stats.matches++;
 
-      // Parse goals from API (score.details)
       const goalDetails = (fdMatch as any).score?.details as FdGoalScorer[] | undefined;
 
       if (goalDetails && goalDetails.length > 0) {
-        // Remove goals antigos desta partida antes de recriar
         await prisma.goal.deleteMany({ where: { matchId: matchRecord.id } });
 
         for (const g of goalDetails) {
@@ -442,7 +444,7 @@ export async function syncFootballData(): Promise<{
       }
     }
 
-    // 7. Gera last5 (últimos 5 jogos) para cada time a partir dos resultados reais
+    // 6. Gera last5 a partir dos resultados reais
     console.log('[FootballData.org] Generating last5 from match results...');
     for (const entry of tableEntries) {
       const apiTeam = entry.team;
@@ -451,7 +453,6 @@ export async function syncFootballData(): Promise<{
       });
       if (!team) continue;
 
-      // Busca as últimas 5 partidas FINALIZADAS do time
       const lastMatches = await prisma.match.findMany({
         where: {
           OR: [
@@ -464,16 +465,13 @@ export async function syncFootballData(): Promise<{
       });
 
       if (lastMatches.length > 0) {
-        // Converte resultados para o formato V/E/D
         const formParts = lastMatches.map((m) => {
           if (m.homeScore === null || m.awayScore === null) return null;
           if (m.homeTeamId === team.id) {
-            // Time é o mandante
             if (m.homeScore > m.awayScore) return 'V';
             if (m.homeScore < m.awayScore) return 'D';
             return 'E';
           } else {
-            // Time é o visitante
             if (m.awayScore > m.homeScore) return 'V';
             if (m.awayScore < m.homeScore) return 'D';
             return 'E';
@@ -497,17 +495,38 @@ export async function syncFootballData(): Promise<{
       }
     }
 
-    // 8. Sincroniza artilheiros do campeonato
-    console.log('[FootballData.org] Syncing top scorers...');
-    stats.scorers = await syncTopScorers();
+    // 7. Processa artilheiros
+    console.log('[FootballData.org] Processing top scorers...');
+    const scorers = (scorersData as any).scorers || [];
+    await prisma.topScorer.deleteMany({ where: { seasonId: season.id } });
 
-    // 9. Garante que alguma rodada esteja marcada como atual
+    for (const s of scorers) {
+      const team = await prisma.team.findFirst({
+        where: { externalId: String(s.team.id) },
+      });
+      if (!team) continue;
+
+      await prisma.topScorer.create({
+        data: {
+          seasonId: season.id,
+          teamId: team.id,
+          playerName: s.player.name,
+          playerExternalId: String(s.player.id),
+          goals: s.goals,
+          assists: s.assists ?? null,
+          penalties: s.penalties ?? null,
+          played: s.playedMatches,
+        },
+      });
+      stats.scorers++;
+    }
+
+    // 8. Garante que alguma rodada esteja marcada como atual
     if (!currentRoundSet) {
       const hasCurrentRound = await prisma.round.findFirst({
         where: { seasonId: season.id, isCurrent: true },
       });
       if (!hasCurrentRound) {
-        // Marca a primeira rodada com partidas agendadas como atual
         const firstUpcoming = await prisma.match.findFirst({
           where: {
             status: { in: ['scheduled', 'live'] },
@@ -522,7 +541,6 @@ export async function syncFootballData(): Promise<{
             data: { isCurrent: true },
           });
         } else {
-          // Última rodada como fallback
           const lastRound = await prisma.round.findFirst({
             where: { seasonId: season.id },
             orderBy: { number: 'desc' },
@@ -598,7 +616,8 @@ export async function syncTopScorers(): Promise<number> {
   if (!season) return 0;
 
   const data = await fetchFromFdApi(
-    `/competitions/${COMPETITION_CODE}/scorers?limit=30`
+    `/competitions/${COMPETITION_CODE}/scorers?limit=30`,
+    'scorers'
   );
   const scorers: any[] = data.scorers || [];
 

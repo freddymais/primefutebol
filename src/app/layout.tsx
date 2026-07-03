@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import Image from 'next/image';
 import './globals.css';
 import { Providers } from './providers';
+import { AdminPanel } from '@/components/AdminPanel';
 import Link from 'next/link';
 
 const inter = Inter({
@@ -115,6 +116,7 @@ export default function RootLayout({
               </div>
             </footer>
           </div>
+          <AdminPanel />
         </Providers>
       </body>
     </html>

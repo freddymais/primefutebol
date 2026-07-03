@@ -108,9 +108,9 @@ export default function DashboardPage() {
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <span className="text-3xl mb-2">📅</span>
                 <p className="text-white/40 text-sm">Nenhum jogo na rodada atual.</p>
-                <p className="text-white/30 text-xs mt-1">
-                  Clique em &ldquo;Sincronizar&rdquo; para buscar os dados.
-                </p>
+                  <p className="text-white/30 text-xs mt-1">
+                    Os dados são sincronizados automaticamente a cada 90s.
+                  </p>
               </div>
             ) : (
               <div className="flex flex-col gap-2 flex-1">

@@ -2,7 +2,7 @@
 
 **Dashboard moderno para acompanhar o Campeonato Brasileiro Série A** — classificação atualizada, jogos da rodada atual (com placares ao vivo), calendário das próximas rodadas e artilheiros do campeonato.
 
-![Next.js](https://img.shields.io/badge/Next.js-14-000?logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss) ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma) ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite)
+![Next.js](https://img.shields.io/badge/Next.js-14-000?logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss) ![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql)
 
 ---
 
@@ -13,10 +13,11 @@
 | **Next.js** | 14 (App Router) | Framework React com SSR |
 | **TypeScript** | 5 | Tipagem estática |
 | **Tailwind CSS** | 3 | Estilização utilitária + glassmorfismo |
-| **Prisma** | 5 | ORM type-safe com SQLite |
-| **SQLite** | — | Banco de dados local |
+| **Prisma** | 7 | ORM type-safe com PostgreSQL |
+| **PostgreSQL** | — | Banco de dados (Neon) |
 | **TanStack Query** | 5 | Cache e revalidação no frontend |
 | **react-hot-toast** | 2 | Notificações |
+| **p-limit** | 7 | Controle de concorrência em chamadas API |
 
 ---
 
@@ -42,8 +43,6 @@ npm run dev
 
 Acesse **[http://localhost:3000](http://localhost:3000)**
 
-> **Nota:** O banco inicia vazio. Clique no botão **"Sincronizar Resultados"** no dashboard para buscar dados da API Football-Data.org (times, classificação, partidas, artilheiros).
-
 ---
 
 ## 🔧 Configuração
@@ -52,7 +51,7 @@ Acesse **[http://localhost:3000](http://localhost:3000)**
 
 | Variável | Descrição | Obrigatório |
 |---|---|---|
-| `DATABASE_URL` | Conexão SQLite (`file:./prisma/dev.db`) | ✅ |
+| `DATABASE_URL` | Conexão PostgreSQL (Neon) | ✅ |
 | `FOOTBALL_API_URL` | URL base da API (`https://api.football-data.org/v4`) | Para sync |
 | `FOOTBALL_API_KEY` | Chave da API Football-Data.org | Para sync |
 | `COMPETITION_CODE` | Código da competição (`BSA` = Brasileirão Série A) | Para sync |
@@ -61,9 +60,51 @@ Acesse **[http://localhost:3000](http://localhost:3000)**
 
 O sistema usa a [Football-Data.org](https://www.football-data.org/) v4.
 
-- **Free tier**: 10 requisições/minuto, dados de times, classificação, partidas e artilheiros
-- O botão "Sincronizar" no dashboard dispara a sync completa
-- A sync persiste os dados no SQLite local — não é necessário re-sincronizar a cada acesso
+- **Free tier**: 10 requisições/minuto
+- A sincronização busca dados de times, classificação, partidas e artilheiros
+- Os dados ficam persistidos no PostgreSQL — o frontend sempre lê do banco
+- As requisições à API externa rodam em **paralelo com limite de 2** (`p-limit`)
+
+---
+
+## 🔄 Arquitetura de Dados
+
+```
+API externa (Football-Data.org)
+       │
+       ▼
+  POST /api/sync  ou  GET /api/cron  (agendado externamente)
+       │
+       ▼
+  syncFootballData() — p-limit(2) — console.time() logs
+       │
+       ▼
+  PostgreSQL (Neon)
+       │
+       ▼
+  GET /api/standings, /api/matches/*, /api/scorers
+       │
+       ▼
+  Frontend (React Query com staleTime)
+```
+
+### Sincronização Automática
+
+- **Externo**: Configure um serviço gratuito como [cron-job.org](https://cron-job.org) para chamar `GET /api/cron` a cada 90 segundos
+- **Manual (admin)**: Painel oculto com atalho `Ctrl+Shift+ç` — veja seção abaixo
+
+---
+
+## 🕹️ Painel Admin (oculto)
+
+Um painel flutuante invisível para forçar sincronização manualmente:
+
+- **Atalho**: `Ctrl + Shift + ç` (tecla "ç" do teclado ABNT2)
+- **Console do navegador**: digite `__toggleAdminPanel()`
+- **Botões**:
+  - **Forçar Sync API** — busca dados da Football-Data.org e salva no banco
+  - **Atualizar do Banco** — recarrega as queries do frontend (sem chamar API externa)
+- Mostra timestamp e estatísticas do último sync forçado
 
 ---
 
@@ -73,7 +114,7 @@ O sistema usa a [Football-Data.org](https://www.football-data.org/) v4.
 primefutebol/
 ├── prisma/
 │   ├── schema.prisma       # Modelagem do banco
-│   └── dev.db              # Banco SQLite local
+│   └── migrations/         # Migrações PostgreSQL
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx      # Layout global + header
@@ -83,14 +124,16 @@ primefutebol/
 │   │   ├── proximas-rodadas/
 │   │   │   └── page.tsx    # Página de próximas rodadas
 │   │   └── api/
+│   │       ├── cron/route.ts           # Endpoint para cron externo
+│   │       ├── sync/route.ts           # Sync manual (POST)
 │   │       ├── standings/route.ts
 │   │       ├── scorers/route.ts
-│   │       ├── matches/
-│   │       │   ├── current-round/route.ts
-│   │       │   └── upcoming/route.ts
-│   │       └── sync/route.ts
+│   │       └── matches/
+│   │           ├── current-round/route.ts
+│   │           └── upcoming/route.ts
 │   ├── components/
 │   │   ├── ui/             # Primitivos (BentoCard, GlassPanel, Badge)
+│   │   ├── AdminPanel.tsx  # Painel admin oculto
 │   │   ├── StandingsTable.tsx
 │   │   ├── TopScorersTable.tsx
 │   │   ├── MatchCard.tsx
@@ -103,6 +146,7 @@ primefutebol/
 │       └── css.d.ts        # Declaração de tipos para CSS
 ├── public/
 │   └── logoPrime.png       # Logo do app
+├── prisma.config.ts        # Config do Prisma CLI
 ├── tailwind.config.ts
 ├── postcss.config.js
 ├── .env.example
@@ -118,7 +162,8 @@ primefutebol/
 - ✅ **Zonas destacadas** (G4, G6, Sul-americana, Z4)
 - ✅ **Placares ao vivo** com badge pulsante
 - ✅ **Artilheiros do campeonato** com ranking e barra de gols
-- ✅ **Sincronização manual** com botão e feedback toast
+- ✅ **Sincronização automática** via cron externo a cada 90s
+- ✅ **Painel admin oculto** com `Ctrl+Shift+ç`
 - ✅ **Próximas rodadas** com seletor e visualização completa
 - ✅ **Responsivo** — colapsa para coluna única em mobile
 - ✅ **Glassmorfismo** com microinterações e transições
@@ -136,11 +181,23 @@ vercel
 ```
 
 Configure as variáveis de ambiente no painel da Vercel:
-- `DATABASE_URL`: `file:./prisma/dev.db` (SQLite funciona apenas em ambientes com filesystem persistente)
-- `FOOTBALL_API_KEY`: sua chave
-- `COMPETITION_CODE`: `BSA`
 
-> ⚠️ SQLite não é recomendado para produção em plataformas serverless (Vercel, Netlify). Para produção real, considere migrar para PostgreSQL ou Turso.
+| Variável | Descrição |
+|---|---|
+| `DATABASE_URL` | Connection string PostgreSQL (Neon) |
+| `FOOTBALL_API_KEY` | Chave da API Football-Data.org |
+| `COMPETITION_CODE` | `BSA` |
+
+### Cron na Vercel
+
+Como a Vercel é serverless, o `node-cron` não funciona. Use um serviço externo gratuito:
+
+1. Acesse [cron-job.org](https://cron-job.org) e crie uma conta
+2. Crie um cron job com:
+   - **URL**: `https://seu-dominio.vercel.app/api/cron`
+   - **Intervalo**: a cada 1 minuto (ou 2 minutos)
+   - **Método**: `GET`
+3. Pronto — o sync rodará automaticamente
 
 ---
 
@@ -167,4 +224,4 @@ Configure as variáveis de ambiente no painel da Vercel:
 
 ## 📄 Licença
 
-MIT — 2025 PrimeFutebol
+MIT — 2025 Primefox Soluções em T.I.
