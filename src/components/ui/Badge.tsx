@@ -10,12 +10,12 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<string, string> = {
-  default: 'bg-white/10 text-white/70',
+  default: 'bg-surface text-fg-secondary',
   live: 'bg-red-500/20 text-red-400',
-  success: 'bg-emerald-500/20 text-emerald-400',
-  warning: 'bg-yellow-500/20 text-yellow-400',
+  success: 'bg-accent-dim text-accent-text',
+  warning: 'bg-yellow-dim text-yellow',
   error: 'bg-red-500/20 text-red-400',
-  info: 'bg-blue-500/20 text-blue-400',
+  info: 'bg-blue-dim text-blue',
 };
 
 export function Badge({ variant = 'default', children, className = '', pulsating = false }: BadgeProps) {
@@ -37,12 +37,12 @@ export function Badge({ variant = 'default', children, className = '', pulsating
 }
 
 interface FormBadgeProps {
-  result: string; // V, E, D
+  result: string;
 }
 
 const formColors: Record<string, string> = {
-  V: 'bg-emerald-500/20 text-emerald-400',
-  E: 'bg-yellow-500/20 text-yellow-400',
+  V: 'bg-accent-dim text-accent-text',
+  E: 'bg-yellow-dim text-yellow',
   D: 'bg-red-500/20 text-red-400',
 };
 
@@ -53,13 +53,13 @@ const formLabels: Record<string, string> = {
 };
 
 export function FormBadge({ result }: FormBadgeProps) {
-  const color = formColors[result] || 'bg-white/10 text-white/50';
+  const color = formColors[result] || 'bg-surface text-fg-muted';
   const label = formLabels[result] || result;
 
   return (
     <span
       className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold leading-none ${color}`}
-      title={result === 'V' ? 'Vitória' : result === 'E' ? 'Empate' : 'Derrota'}
+      title={result === 'V' ? 'Vitoria' : result === 'E' ? 'Empate' : 'Derrota'}
     >
       {label}
     </span>

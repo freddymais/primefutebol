@@ -24,7 +24,6 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
   const hasGoals = (isLive || isFinished) && match.goals && match.goals.length > 0;
   const liveMinutes = getLiveMinutes(matchDatetime, status);
 
-  // Fechar ao clicar fora
   useEffect(() => {
     if (!showGoals) return;
     function handleClickOutside(e: MouseEvent) {
@@ -48,11 +47,11 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
         onClick={handleCardClick}
         className={`glass-card-sm transition-all duration-300 w-full flex flex-col justify-center ${
           compact ? 'py-3 px-4' : 'py-4 px-5'
-        } ${hasGoals ? 'cursor-pointer hover:bg-white/[0.08]' : ''} ${
-          showGoals ? 'ring-1 ring-white/20 bg-white/[0.06]' : ''
+        } ${hasGoals ? 'cursor-pointer hover:bg-surface-hover' : ''} ${
+          showGoals ? 'ring-1 ring-border-hover bg-surface' : ''
         }`}
       >
-        {/* Status / Horário */}
+        {/* Status / Horario */}
         <div className={`flex items-center justify-between ${compact ? 'mb-2.5' : 'mb-3'}`}>
           {isLive ? (
             <Badge variant="live" pulsating>
@@ -61,7 +60,7 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
           ) : isFinished ? (
             <Badge variant="success">Encerrado</Badge>
           ) : isScheduled ? (
-            <span className="text-xs text-white/40">{formatMatchDateTime(matchDatetime)}</span>
+            <span className="text-xs text-fg-muted">{formatMatchDateTime(matchDatetime)}</span>
           ) : (
             <Badge variant="warning">Adiado</Badge>
           )}
@@ -71,16 +70,16 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
         <div className="flex items-center justify-between gap-2">
           {/* Time Casa */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className={`rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden ${compact ? 'w-7 h-7' : 'w-8 h-8'}`}>
+            <div className={`rounded-full bg-surface flex items-center justify-center flex-shrink-0 overflow-hidden ${compact ? 'w-7 h-7' : 'w-8 h-8'}`}>
               {homeTeam.logoUrl ? (
                 <Image src={homeTeam.logoUrl} alt={homeTeam.name} width={28} height={28} className={`object-contain ${compact ? 'w-6 h-6' : 'w-7 h-7'}`} />
               ) : (
-                <span className="text-[10px] font-bold text-white/40">
+                <span className="text-[10px] font-bold text-fg-muted">
                   {(homeTeam.shortName || homeTeam.name).slice(0, 2)}
                 </span>
               )}
             </div>
-            <span className={`font-medium truncate ${isLive ? 'text-white/90' : 'text-white/70'} ${compact ? 'text-xs' : 'text-sm'}`}>
+            <span className={`font-medium truncate ${isLive ? 'text-fg' : 'text-fg-secondary'} ${compact ? 'text-xs' : 'text-sm'}`}>
               {homeTeam.shortName || homeTeam.name}
             </span>
           </div>
@@ -88,14 +87,14 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
           {/* Placar */}
           <div className="flex-shrink-0 text-center">
             {isScheduled ? (
-              <span className="text-xs text-white/30 font-medium">vs</span>
+              <span className="text-xs text-fg-faint font-medium">vs</span>
             ) : (
               <div className="flex items-center gap-2">
-                <span className={`${compact ? 'score-number-compact' : 'score-number'} ${isLive ? 'text-white' : 'text-white/80'} ${homeScore !== null && awayScore !== null && homeScore > awayScore ? 'text-emerald-400' : ''}`}>
+                <span className={`${compact ? 'score-number-compact' : 'score-number'} ${isLive ? 'text-fg' : 'text-fg-secondary'} ${homeScore !== null && awayScore !== null && homeScore > awayScore ? 'text-accent-text' : ''}`}>
                   {homeScore ?? '-'}
                 </span>
-                <span className="text-white/20 font-medium text-sm">×</span>
-                <span className={`${compact ? 'score-number-compact' : 'score-number'} ${isLive ? 'text-white' : 'text-white/80'} ${homeScore !== null && awayScore !== null && awayScore > homeScore ? 'text-emerald-400' : ''}`}>
+                <span className="text-fg-faint font-medium text-sm">x</span>
+                <span className={`${compact ? 'score-number-compact' : 'score-number'} ${isLive ? 'text-fg' : 'text-fg-secondary'} ${homeScore !== null && awayScore !== null && awayScore > homeScore ? 'text-accent-text' : ''}`}>
                   {awayScore ?? '-'}
                 </span>
               </div>
@@ -104,14 +103,14 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
 
           {/* Time Fora */}
           <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-            <span className={`font-medium truncate text-right ${isLive ? 'text-white/90' : 'text-white/70'} ${compact ? 'text-xs' : 'text-sm'}`}>
+            <span className={`font-medium truncate text-right ${isLive ? 'text-fg' : 'text-fg-secondary'} ${compact ? 'text-xs' : 'text-sm'}`}>
               {awayTeam.shortName || awayTeam.name}
             </span>
-            <div className={`rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden ${compact ? 'w-7 h-7' : 'w-8 h-8'}`}>
+            <div className={`rounded-full bg-surface flex items-center justify-center flex-shrink-0 overflow-hidden ${compact ? 'w-7 h-7' : 'w-8 h-8'}`}>
               {awayTeam.logoUrl ? (
                 <Image src={awayTeam.logoUrl} alt={awayTeam.name} width={28} height={28} className={`object-contain ${compact ? 'w-6 h-6' : 'w-7 h-7'}`} />
               ) : (
-                <span className="text-[10px] font-bold text-white/40">
+                <span className="text-[10px] font-bold text-fg-muted">
                   {(awayTeam.shortName || awayTeam.name).slice(0, 2)}
                 </span>
               )}
@@ -119,15 +118,15 @@ export function MatchCard({ match, compact = false }: MatchCardProps) {
           </div>
         </div>
 
-        {/* Estádio (apenas se não for compacto) */}
+        {/* Estadio */}
         {!compact && venue && (
-          <div className="mt-3 text-[11px] text-white/30 text-center truncate">
+          <div className="mt-3 text-[11px] text-fg-faint text-center truncate">
             {venue}
           </div>
         )}
       </div>
 
-      {/* Popover de Gols — fora do glass-card-sm para evitar stacking context do backdrop-filter */}
+      {/* Popover de Gols */}
       {showGoals && hasGoals && (
         <MatchGoalsPopover goals={match.goals!} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
       )}
@@ -160,8 +159,6 @@ interface RoundSectionProps {
   loading?: boolean;
 }
 
-/* ───────── Popover de Gols (via clique) ───────── */
-
 function MatchGoalsPopover({
   goals,
   homeTeamId,
@@ -176,35 +173,35 @@ function MatchGoalsPopover({
 
   return (
     <div className="absolute left-0 right-0 top-full mt-1.5 z-50 px-4">
-      <div className="bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+      <div className="bg-[var(--glass-strong-bg)] backdrop-blur-xl border border-border rounded-xl shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex border-b border-white/5">
-          <div className="flex-1 text-center py-1.5 text-[11px] font-medium text-white/50 uppercase tracking-wider">
+        <div className="flex border-b border-border">
+          <div className="flex-1 text-center py-1.5 text-[11px] font-medium text-fg-muted uppercase tracking-wider">
             Casa
           </div>
-          <div className="w-px bg-white/5" />
-          <div className="flex-1 text-center py-1.5 text-[11px] font-medium text-white/50 uppercase tracking-wider">
+          <div className="w-px bg-border" />
+          <div className="flex-1 text-center py-1.5 text-[11px] font-medium text-fg-muted uppercase tracking-wider">
             Visitante
           </div>
         </div>
-        <div className="flex divide-x divide-white/5">
+        <div className="flex divide-x divide-border">
           {/* Gols Casa */}
           <div className="flex-1 py-2 px-2.5 min-h-[2rem]">
             {homeGoals.length === 0 ? (
-              <p className="text-[11px] text-white/30 text-center italic">
+              <p className="text-[11px] text-fg-faint text-center italic">
                 Sem gols
               </p>
             ) : (
               <ul className="space-y-1">
                 {homeGoals.map((g, i) => (
-                  <li key={i} className="text-xs text-white/80 flex items-center gap-1.5">
-                    <span className="text-emerald-400 font-mono font-medium tabular-nums">{g.minute}&apos;</span>
+                  <li key={i} className="text-xs text-fg-secondary flex items-center gap-1.5">
+                    <span className="text-accent-text font-mono font-medium tabular-nums">{g.minute}&apos;</span>
                     <span className="truncate">{g.scorer}</span>
                     {g.isOwnGoal && (
-                      <span className="text-amber-400 text-[10px] font-medium shrink-0">GC</span>
+                      <span className="text-yellow text-[10px] font-medium shrink-0">GC</span>
                     )}
                     {g.isPenalty && (
-                      <span className="text-blue-400 text-[10px] font-medium shrink-0">P</span>
+                      <span className="text-blue text-[10px] font-medium shrink-0">P</span>
                     )}
                   </li>
                 ))}
@@ -214,20 +211,20 @@ function MatchGoalsPopover({
           {/* Gols Fora */}
           <div className="flex-1 py-2 px-2.5 min-h-[2rem]">
             {awayGoals.length === 0 ? (
-              <p className="text-[11px] text-white/30 text-center italic">
+              <p className="text-[11px] text-fg-faint text-center italic">
                 Sem gols
               </p>
             ) : (
               <ul className="space-y-1">
                 {awayGoals.map((g, i) => (
-                  <li key={i} className="text-xs text-white/80 flex items-center gap-1.5">
-                    <span className="text-emerald-400 font-mono font-medium tabular-nums">{g.minute}&apos;</span>
+                  <li key={i} className="text-xs text-fg-secondary flex items-center gap-1.5">
+                    <span className="text-accent-text font-mono font-medium tabular-nums">{g.minute}&apos;</span>
                     <span className="truncate">{g.scorer}</span>
                     {g.isOwnGoal && (
-                      <span className="text-amber-400 text-[10px] font-medium shrink-0">GC</span>
+                      <span className="text-yellow text-[10px] font-medium shrink-0">GC</span>
                     )}
                     {g.isPenalty && (
-                      <span className="text-blue-400 text-[10px] font-medium shrink-0">P</span>
+                      <span className="text-blue text-[10px] font-medium shrink-0">P</span>
                     )}
                   </li>
                 ))}
@@ -256,7 +253,7 @@ export function RoundSection({ roundNumber, matches, loading }: RoundSectionProp
   if (!matches || matches.length === 0) {
     return (
       <GlassPanel title={`Rodada ${roundNumber}`}>
-        <p className="text-white/40 text-sm text-center py-6">
+        <p className="text-fg-muted text-sm text-center py-6">
           Nenhuma partida encontrada para esta rodada.
         </p>
       </GlassPanel>

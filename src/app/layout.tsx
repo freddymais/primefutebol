@@ -5,6 +5,7 @@ import Image from 'next/image';
 import './globals.css';
 import { Providers } from './providers';
 import { AdminPanel } from '@/components/AdminPanel';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import Link from 'next/link';
 
 const inter = Inter({
@@ -12,8 +13,6 @@ const inter = Inter({
   weight: ['300', '400', '500', '600', '700', '800'],
   display: 'swap',
 });
-
-
 
 export const metadata: Metadata = {
   title: 'PrimeFutebol — Campeonato Brasileiro Série A',
@@ -37,24 +36,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-      <html lang="pt-BR" className="dark">
-      <body className={`${inter.className} bg-[#0B0E14] text-white/90 antialiased`}>
+      <html lang="pt-BR" className="dark" suppressHydrationWarning>
+      <body className={`${inter.className} bg-bg text-fg antialiased`}>
         <Providers>
           <div className="bg-noise min-h-screen relative">
             {/* Background gradients */}
-            <div className="fixed inset-0 pointer-events-none z-0"
-              style={{
-                background: `
-                  radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 230, 118, 0.08), transparent),
-                  radial-gradient(ellipse 60% 40% at 80% 20%, rgba(68, 138, 255, 0.06), transparent),
-                  radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255, 214, 0, 0.04), transparent),
-                  radial-gradient(ellipse 70% 50% at 50% 80%, rgba(0, 230, 118, 0.03), transparent)
-                `,
-              }}
-            />
+            <div className="fixed inset-0 pointer-events-none z-0" />
 
             {/* Header */}
-            <header className="relative z-10 border-b border-white/[0.06]">
+            <header className="relative z-10 border-b border-border transition-theme">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16 md:h-20">
                   {/* Logo */}
@@ -63,30 +53,35 @@ export default function RootLayout({
                       <Image src="/logoPrime.png" alt="PrimeFutebol" width={36} height={36} className="w-9 h-9 object-contain" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-lg font-bold text-white/90 leading-tight tracking-tight">
-                        Prime<span className="text-emerald-400">Futebol</span>
+                      <span className="text-lg font-bold text-fg leading-tight tracking-tight">
+                        Prime<span className="text-accent-text">Futebol</span>
                       </span>
-                      <span className="text-[10px] text-white/30 font-medium leading-tight hidden sm:block">
+                      <span className="text-[10px] text-fg-muted font-medium leading-tight hidden sm:block">
                         Brasileirão Série A
                       </span>
                     </div>
                   </Link>
 
-                  {/* Navigation */}
-                  <nav className="flex items-center gap-1">
-                    <Link
-                      href="/"
-                      className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white/90 hover:bg-white/5 rounded-lg transition-all duration-200"
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      href="/proximas-rodadas"
-                      className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white/90 hover:bg-white/5 rounded-lg transition-all duration-200"
-                    >
-                      Próximas Rodadas
-                    </Link>
-                  </nav>
+                  {/* Navigation + Theme Toggle */}
+                  <div className="flex items-center gap-1">
+                    <nav className="flex items-center gap-1">
+                      <Link
+                        href="/"
+                        className="px-4 py-2 text-sm font-medium text-fg-secondary hover:text-fg hover:bg-surface-hover rounded-lg transition-all duration-200"
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/proximas-rodadas"
+                        className="px-4 py-2 text-sm font-medium text-fg-secondary hover:text-fg hover:bg-surface-hover rounded-lg transition-all duration-200"
+                      >
+                        Rodadas
+                      </Link>
+                    </nav>
+                    <div className="ml-1">
+                      <ThemeToggle />
+                    </div>
+                  </div>
                 </div>
               </div>
             </header>
@@ -97,19 +92,19 @@ export default function RootLayout({
             </main>
 
             {/* Footer */}
-            <footer className="relative z-10 border-t border-white/[0.06] mt-12">
+            <footer className="relative z-10 border-t border-border mt-12 transition-theme">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white/30">
-                      Prime<span className="text-emerald-400/50">Futebol</span>
+                    <span className="text-sm font-semibold text-fg-muted">
+                      Prime<span className="text-accent-text">Futebol</span>
                     </span>
-                    <span className="text-white/20 text-xs">•</span>
-                    <span className="text-xs text-white/20">
+                    <span className="text-fg-faint text-xs">•</span>
+                    <span className="text-xs text-fg-faint">
                       Campeonato Brasileiro Série A
                     </span>
                   </div>
-                  <p className="text-xs text-white/20">
+                  <p className="text-xs text-fg-faint">
                     Primefox Soluções em T.I.
                   </p>
                 </div>

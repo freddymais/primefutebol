@@ -52,10 +52,10 @@ export function StandingsTable({ standings, loading, error, onRetry }: Standings
   if (!standings || standings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-10 text-center">
-        <p className="text-white/40 text-sm">
-          Nenhum dado de classificação disponível.
+        <p className="text-fg-muted text-sm">
+          Nenhum dado de classificacao disponivel.
         </p>
-        <p className="text-white/30 text-xs mt-1">
+        <p className="text-fg-faint text-xs mt-1">
           Clique em &ldquo;Sincronizar&rdquo; para buscar os dados.
         </p>
       </div>
@@ -66,7 +66,7 @@ export function StandingsTable({ standings, loading, error, onRetry }: Standings
     <div className="-mx-2">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-xs text-white/40 uppercase tracking-wider border-b border-white/5">
+          <tr className="text-xs text-fg-muted uppercase tracking-wider border-b border-border">
             <th className="text-left py-3 px-2 font-medium w-8">#</th>
             <th className="text-left py-3 px-2 font-medium">Time</th>
             <th className="text-center py-3 px-1.5 font-medium w-9">PG</th>
@@ -77,7 +77,7 @@ export function StandingsTable({ standings, loading, error, onRetry }: Standings
             <th className="text-center py-3 px-1.5 font-medium w-7">GP</th>
             <th className="text-center py-3 px-1.5 font-medium w-7">GC</th>
             <th className="text-center py-3 px-1.5 font-medium w-8">SG</th>
-            <th className="text-center py-3 px-1.5 font-medium hidden md:table-cell">Últimos 5</th>
+            <th className="text-center py-3 px-1.5 font-medium hidden md:table-cell">Ultimos 5</th>
           </tr>
         </thead>
         <tbody>
@@ -91,18 +91,18 @@ export function StandingsTable({ standings, loading, error, onRetry }: Standings
                   borderLeft: `3px solid ${color.borderColor}`,
                   background: color.background,
                 }}
-                className={`group transition-all duration-200 hover:bg-white/[0.03] ${
-                  idx < standings.length - 1 ? 'border-b border-white/5' : ''
+                className={`group transition-all duration-200 hover:bg-surface ${
+                  idx < standings.length - 1 ? 'border-b border-border' : ''
                 }`}
               >
                 <td className="py-3 px-2">
-                  <span className="position-number text-xs text-white/50 tabular-nums">
-                    {s.position}º
+                  <span className="position-number text-xs text-fg-muted tabular-nums">
+                    {s.position}
                   </span>
                 </td>
                 <td className="py-3 px-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="w-6 h-6 rounded-full bg-surface flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {s.team.logoUrl ? (
                         <Image
                           src={s.team.logoUrl}
@@ -115,28 +115,28 @@ export function StandingsTable({ standings, loading, error, onRetry }: Standings
                           }}
                         />
                       ) : (
-                        <span className="text-[10px] font-bold text-white/30">
+                        <span className="text-[10px] font-bold text-fg-muted">
                           {(s.team.shortName || s.team.name).slice(0, 2)}
                         </span>
                       )}
                     </div>
-                    <span className="font-medium text-white/80 text-sm truncate max-w-[140px]">
+                    <span className="font-medium text-fg-secondary text-sm truncate max-w-[140px]">
                       {s.team.name}
                     </span>
                   </div>
                 </td>
                 <td className="py-3 px-1.5 text-center">
-                  <span className="font-bold text-white text-sm tabular-nums">{s.points}</span>
+                  <span className="font-bold text-fg text-sm tabular-nums">{s.points}</span>
                 </td>
-                <td className="py-3 px-1.5 text-center text-white/60 text-xs tabular-nums">{s.played}</td>
-                <td className="py-3 px-1.5 text-center text-white/60 text-xs tabular-nums">{s.wins}</td>
-                <td className="py-3 px-1.5 text-center text-white/60 text-xs tabular-nums">{s.draws}</td>
-                <td className="py-3 px-1.5 text-center text-white/60 text-xs tabular-nums">{s.losses}</td>
-                <td className="py-3 px-1.5 text-center text-white/60 text-xs tabular-nums">{s.goalsFor}</td>
-                <td className="py-3 px-1.5 text-center text-white/60 text-xs tabular-nums">{s.goalsAgainst}</td>
+                <td className="py-3 px-1.5 text-center text-fg-secondary text-xs tabular-nums">{s.played}</td>
+                <td className="py-3 px-1.5 text-center text-fg-secondary text-xs tabular-nums">{s.wins}</td>
+                <td className="py-3 px-1.5 text-center text-fg-secondary text-xs tabular-nums">{s.draws}</td>
+                <td className="py-3 px-1.5 text-center text-fg-secondary text-xs tabular-nums">{s.losses}</td>
+                <td className="py-3 px-1.5 text-center text-fg-secondary text-xs tabular-nums">{s.goalsFor}</td>
+                <td className="py-3 px-1.5 text-center text-fg-secondary text-xs tabular-nums">{s.goalsAgainst}</td>
                 <td className="py-3 px-1.5 text-center">
                   <span className={`text-xs font-medium tabular-nums ${
-                    s.goalDifference > 0 ? 'text-emerald-400' : s.goalDifference < 0 ? 'text-red-400' : 'text-white/40'
+                    s.goalDifference > 0 ? 'text-accent-text' : s.goalDifference < 0 ? 'text-red-400' : 'text-fg-muted'
                   }`}>
                     {s.goalDifference > 0 ? '+' : ''}{s.goalDifference}
                   </span>

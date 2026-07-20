@@ -80,7 +80,7 @@ export function ErrorCard({ message, onRetry }: ErrorCardProps) {
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/15 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+          className="px-4 py-2 text-sm font-medium text-fg bg-surface hover:bg-surface-hover rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           Tentar novamente
         </button>

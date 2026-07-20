@@ -28,14 +28,11 @@ export default function ProximasRodadasPage() {
 
   const currentRoundNumber = rounds?.find((r) => r.isCurrent)?.number;
 
-  // Se não tiver rodada selecionada, usa a atual ou a primeira disponível
   const effectiveRound = selectedRound || currentRoundNumber || rounds?.[0]?.number || 1;
 
-  // Filtra as partidas da rodada selecionada
   const selectedRoundData = rounds?.find((r) => r.number === effectiveRound);
   const matches = selectedRoundData?.matches || [];
 
-  // Alterna entre visualização de uma rodada específica e todas as rodadas
   const [viewMode, setViewMode] = useState<'single' | 'all'>('single');
 
   return (
@@ -43,10 +40,10 @@ export default function ProximasRodadasPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white/90 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-fg tracking-tight">
             Próximas Rodadas
           </h1>
-          <p className="text-sm text-white/40 mt-1">
+          <p className="text-sm text-fg-muted mt-1">
             Calendário completo de jogos do Brasileirão Série A
           </p>
         </div>
@@ -63,10 +60,10 @@ export default function ProximasRodadasPage() {
           className={`
             flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium
             transition-all duration-200 whitespace-nowrap
-            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400
+            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
             ${viewMode === 'all'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10'
-              : 'bg-white/[0.04] text-white/50 border border-transparent hover:bg-white/10 hover:text-white/70'
+              ? 'bg-accent-dim text-accent-text border border-accent/30 shadow-lg shadow-accent/10'
+              : 'bg-surface text-fg-secondary border border-transparent hover:bg-surface-hover hover:text-fg'
             }
           `}
         >
@@ -95,8 +92,8 @@ export default function ProximasRodadasPage() {
       ) : !rounds || rounds.length === 0 ? (
         <div className="glass-card flex flex-col items-center justify-center py-16 text-center">
           <span className="text-4xl mb-4">📅</span>
-          <p className="text-white/50 text-lg font-medium">Nenhuma rodada disponível</p>
-          <p className="text-white/30 text-sm mt-1">
+          <p className="text-fg-secondary text-lg font-medium">Nenhuma rodada disponível</p>
+          <p className="text-fg-muted text-sm mt-1">
             Clique em &ldquo;Sincronizar&rdquo; no Dashboard para carregar os dados.
           </p>
         </div>
@@ -116,7 +113,7 @@ export default function ProximasRodadasPage() {
           {viewMode === 'single' ? (
             <GlassPanel title={`Rodada ${effectiveRound} — Jogos`} icon="⚽">
               {matches.length === 0 ? (
-                <p className="text-white/40 text-sm text-center py-8">
+                <p className="text-fg-muted text-sm text-center py-8">
                   Nenhuma partida encontrada para esta rodada.
                 </p>
               ) : (
@@ -132,7 +129,7 @@ export default function ProximasRodadasPage() {
               {rounds.map((round) => (
                 <GlassPanel key={round.id} title={`Rodada ${round.number}`} icon="⚽">
                   {round.matches.length === 0 ? (
-                    <p className="text-white/40 text-sm text-center py-6">
+                    <p className="text-fg-muted text-sm text-center py-6">
                       Nenhuma partida nesta rodada.
                     </p>
                   ) : (

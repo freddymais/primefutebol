@@ -49,7 +49,7 @@ export function SyncButton() {
         queryClient.refetchQueries({ queryKey: ['scorers'] }),
       ]);
 
-      toast.success('✅ Dados atualizados do banco!', { id: toastId, duration: 3000 });
+      toast.success('Dados atualizados do banco!', { id: toastId, duration: 3000 });
     } catch (error: any) {
       toast.error('Erro ao atualizar dados', { id: toastId });
     } finally {
@@ -67,10 +67,10 @@ export function SyncButton() {
       className={`
         relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
         transition-all duration-200
-        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400
+        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
         ${disabled
-          ? 'bg-emerald-500/10 text-emerald-400/50 cursor-not-allowed'
-          : 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-95'
+          ? 'bg-accent-dim text-accent-text/50 cursor-not-allowed'
+          : 'bg-accent-dim text-accent-text hover:bg-accent/25 hover:shadow-lg hover:shadow-accent/10 active:scale-95'
         }
       `}
     >

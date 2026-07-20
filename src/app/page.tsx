@@ -63,10 +63,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white/90 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-fg tracking-tight">
             Brasileirão {new Date().getMonth() + 1 < 4 ? new Date().getFullYear() - 1 : new Date().getFullYear()}
           </h1>
-          <p className="text-sm text-white/40 mt-1">
+          <p className="text-sm text-fg-muted mt-1">
             Acompanhe a classificação e os jogos ao vivo do Brasileirão Série A
           </p>
         </div>
@@ -107,8 +107,8 @@ export default function DashboardPage() {
             ) : !currentRound?.matches || currentRound.matches.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <span className="text-3xl mb-2">📅</span>
-                <p className="text-white/40 text-sm">Nenhum jogo na rodada atual.</p>
-                  <p className="text-white/30 text-xs mt-1">
+                <p className="text-fg-muted text-sm">Nenhum jogo na rodada atual.</p>
+                  <p className="text-fg-faint text-xs mt-1">
                     Os dados são sincronizados automaticamente a cada 90s.
                   </p>
               </div>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
 
       {/* Legenda */}
       <div className="glass p-4">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-white/40">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-fg-muted">
           <span className="flex items-center gap-2">
             <span className="w-1 h-4 rounded bg-zone-libertadores" />
             G4 — Libertadores (grupo)

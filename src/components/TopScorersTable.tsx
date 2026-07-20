@@ -34,10 +34,10 @@ export function TopScorersTable({ scorers, loading, error, onRetry }: TopScorers
   if (!scorers || scorers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-10 text-center">
-        <p className="text-white/40 text-sm">
+        <p className="text-fg-muted text-sm">
           Nenhum artilheiro disponível.
         </p>
-        <p className="text-white/30 text-xs mt-1">
+        <p className="text-fg-faint text-xs mt-1">
           Clique em &ldquo;Sincronizar&rdquo; para buscar os dados.
         </p>
       </div>
@@ -53,12 +53,12 @@ export function TopScorersTable({ scorers, loading, error, onRetry }: TopScorers
         return (
           <div
             key={s.id}
-            className="flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-white/[0.03]"
+            className="flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-surface"
           >
-            <span className="w-5 text-center text-xs text-white/40 tabular-nums">
+            <span className="w-5 text-center text-xs text-fg-muted tabular-nums">
               {idx + 1}º
             </span>
-            <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="w-6 h-6 rounded-full bg-surface flex items-center justify-center flex-shrink-0 overflow-hidden">
               {s.team.logoUrl ? (
                 <Image
                   src={s.team.logoUrl}
@@ -71,31 +71,31 @@ export function TopScorersTable({ scorers, loading, error, onRetry }: TopScorers
                   }}
                 />
               ) : (
-                <span className="text-[10px] font-bold text-white/30">
+                <span className="text-[10px] font-bold text-fg-muted">
                   {(s.team.shortName || s.team.name).slice(0, 2)}
                 </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm text-white/80 font-medium truncate">
+              <div className="text-sm text-fg-secondary font-medium truncate">
                 {s.playerName}
               </div>
-              <div className="text-[11px] text-white/30 truncate">
+              <div className="text-[11px] text-fg-faint truncate">
                 {s.team.name}
               </div>
             </div>
             <div className="flex items-center gap-3 text-xs">
-              <span className="text-white/40 tabular-nums">
+              <span className="text-fg-muted tabular-nums">
                 {s.played}J
               </span>
               <div className="flex items-center gap-1.5">
-                <div className="relative h-5 w-10 rounded-full bg-white/5 overflow-hidden">
+                <div className="relative h-5 w-10 rounded-full bg-surface overflow-hidden">
                   <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-yellow-500/30 transition-all"
+                    className="absolute inset-y-0 left-0 rounded-full bg-yellow-dim transition-all"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
-                <span className="font-bold text-sm text-white tabular-nums w-5 text-right">
+                <span className="font-bold text-sm text-fg tabular-nums w-5 text-right">
                   {s.goals}
                 </span>
               </div>

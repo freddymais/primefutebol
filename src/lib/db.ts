@@ -39,11 +39,14 @@ export async function getCurrentSeason() {
 }
 
 /**
- * Busca a rodada atual
+ * Busca a rodada atual (filtrada pela temporada corrente)
  */
 export async function getCurrentRound() {
+  const season = await getCurrentSeason();
+  if (!season) return null;
+
   return prisma.round.findFirst({
-    where: { isCurrent: true },
+    where: { isCurrent: true, seasonId: season.id },
     include: {
       matches: {
         include: {
@@ -93,7 +96,7 @@ export async function getUpcomingRounds(limit = 5) {
   if (!season) return [];
 
   const currentRound = await prisma.round.findFirst({
-    where: { isCurrent: true },
+    where: { isCurrent: true, seasonId: season.id },
   });
 
   const whereClause: any = {
